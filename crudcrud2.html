@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form onsubmit="saveToLocalStorage(event)">
+        <label>choose expenseamount</label>
+        <input type="text" name="username" id="username" required />
+        <label>choose description</label>
+        <input type="text" name='desc'id='desc' required />
+        <label>choose a category</label>
+        <input type="text" name="category" id="category" />
+        <button>submit</button>
+    </form>
+    <ul id="list"></ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
+    <script>
+        function saveToLocalStorage(event) {
+            event.preventDefault()
+
+            const name = event.target.username.value;
+            let desc = event.target.desc.value;
+            let category = event.target.category.value;
+            let obj = {
+                name, desc, category
+            }
+            axios.post("https://crudcrud.com/api/dfd5d20cc2504438b32838ea4bc07d72/AppointmentData", obj)
+            .then((response)=>{
+                showNewUser(response.data)
+                console.log(response)
+                })
+                .catch((error)=>{
+                    console.log(error)
+            })
+
+            //localStorage.setItem(obj.category, JSON.stringify(obj))
+            //showNewUser(obj)
+
+        }
+        window.addEventListener("DOMContentLoaded", () => {
+            axios.get("https://crudcrud.com/api/dfd5d20cc2504438b32838ea4bc07d72/AppointmentData/")
+            .then((responce)=>{
+                for(var i=0;i<responce.data.length;i++){
+                    showNewUser(responce.data[i])
+                }
+                console.log(responce)
+            })
+            .catch((error)=>{
+                console.log(error)
+            })
+            // const localStorageObj = localStorage;
+            // const localstoragekeys = Object.keys(localStorageObj)
+
+            // for (var i = 0; i < localstoragekeys.length; i++) {
+            //     const key = localstoragekeys[i]
+            //     const userDetailsString = localStorageObj[key];
+            //     const userDetailsObj = JSON.parse(userDetailsString);
+            //     showNewUser(userDetailsObj)
+            // }
+        })
+        function showNewUser(user) {
+            if (localStorage.getItem(user.category)!== null) {
+                removeUserFromScreen(user.category)
+            }
+            const parent = document.getElementById('list')
+            const child = `<li>expence amount-${user.name} desc-${user.desc} category-${user.category}<button onclick=deleteExpence('${user.category}')> DeleteExpence </button>
+            <button onclick=editExpences('${user.name}','${user.desc}','${user.category}')> editExpences  </button></li>`
+
+            parent.innerHTML = parent.innerHTML + child
+
+        }
+        function deleteExpence(category) {
+            console.log(category)
+            localStorage.removeItem(category);
+            removeUserFromScreen(category);
+        }
+        function editExpences(name, desc, category) {
+            document.getElementById('username').value = name;
+            document.getElementById('desc').value = desc;
+            document.getElementById('category').value = category;
+            deleteExpence(category)
+        }
+
+        function removeUserFromScreen(category) {
+            const parentNode = document.getElementById('list');
+            const childNodeToBeDeleted = document.getElementById(category);
+            if (childNodeToBeDeleted) {
+                parentNode.removeChild(childNodeToBeDeleted)
+            }
+        }
+    </script>
+</body>
+</html>
